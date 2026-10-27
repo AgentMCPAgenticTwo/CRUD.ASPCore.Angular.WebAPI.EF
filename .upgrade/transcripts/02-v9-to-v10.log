@@ -1,0 +1,7 @@
+Hop 02 (Angular 9 → 10) is done.
+
+- **install**: pass (verified from a clean `node_modules`)
+- **build**: pass
+- **test**: fail — identical pre-existing failure to baseline (`styles.css` path in angular.json's test target), not worse
+
+Angular packages at 10.2.5, CLI/build-angular on the 10.2/0.1002 line, TypeScript 4.0.8, tslib 2, @ngrx/* at 10.1.2. All CLI v10 workspace migrations applied (`.browserslistrc` rename, angular.json cleanup, tsconfig module/target, karma/jasmine/protractor/tslint refresh); the three core code migrations required no source changes. Report written to `.upgrade/reports/02-v9-to-v10.json`. No commit made, per the rules.

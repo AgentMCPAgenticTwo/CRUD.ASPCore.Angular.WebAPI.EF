@@ -1,0 +1,51 @@
+{
+  "hop": "02-v9-to-v10",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 9.1 to Angular 10.2 with `ng update`, which ran the core v10 migrations (ModuleWithProviders generic, undecorated classes, @Injectable) and the CLI v10 workspace migrations (browserslist renamed to .browserslistrc, removed options dropped in v10 from angular.json, tslib 2, TypeScript 4.0, updated module/target compiler options, refreshed karma/jasmine/protractor/tslint dev dependencies). @angular-devkit/build-angular was moved to 0.1002.x and @ngrx/* to 10.1.2 so the toolchain and NgRx match Angular 10. install and build pass from a clean node_modules; tests still fail exactly as at baseline, for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@10 @angular/cli@10 bumped all @angular/* packages to 10.2.5 and TypeScript to 4.0.8; the three core code migrations found nothing to change in src/.",
+    "CLI v10 workspace migrations: renamed `browserslist` to `.browserslistrc`, removed the deprecated `vendorChunk` options from angular.json's server configurations, dropped the removed `no-use-before-declare` rule from tslint.json, set tsconfig.json `module` to es2020 and src/tsconfig.server.json `target` to es2016, and moved tslib to ^2.0.0.",
+    "Bumped @angular-devkit/build-angular to ^0.1002.4 and @angular/cli to ^10.2.4 (ng update left them on the v9 line because a temporary CLI 10 was present in node_modules).",
+    "Ran ng update @ngrx/store@10, moving all five @ngrx/* packages from 9.2.1 to 10.1.2; no NgRx code migrations applied.",
+    "Dev dependency refresh from the v10 workspace migration: karma 5, karma-jasmine 4, karma-chrome-launcher 3.1, karma-coverage-istanbul-reporter 3.0, jasmine-core 3.5, jasmine-spec-reporter 5, protractor 7, tslint 6.1.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a clean npm install followed by npm run build."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/common", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/compiler", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/core", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/forms", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/platform-browser", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/platform-browser-dynamic", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/platform-server", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/router", "from": "9.1.13", "to": "10.2.5" },
+    { "name": "@angular/cli", "from": "^9.1.15", "to": "^10.2.4" },
+    { "name": "@angular/compiler-cli", "from": "^9.1.13", "to": "^10.2.5" },
+    { "name": "@angular/language-service", "from": "^9.1.13", "to": "^10.2.5" },
+    { "name": "@angular-devkit/build-angular", "from": "~0.901.15", "to": "^0.1002.4" },
+    { "name": "@ngrx/effects", "from": "^9.2.1", "to": "^10.1.2" },
+    { "name": "@ngrx/entity", "from": "^9.2.1", "to": "^10.1.2" },
+    { "name": "@ngrx/router-store", "from": "^9.2.1", "to": "^10.1.2" },
+    { "name": "@ngrx/store", "from": "^9.2.1", "to": "^10.1.2" },
+    { "name": "@ngrx/store-devtools", "from": "^9.2.1", "to": "^10.1.2" },
+    { "name": "typescript", "from": "~3.8.3", "to": "~4.0.8" },
+    { "name": "tslib", "from": "^1.10.0", "to": "^2.0.0" },
+    { "name": "karma", "from": "^4.0.0", "to": "~5.0.0" },
+    { "name": "karma-jasmine", "from": "~2.0.1", "to": "~4.0.0" },
+    { "name": "karma-chrome-launcher", "from": "~2.2.0", "to": "~3.1.0" },
+    { "name": "karma-coverage-istanbul-reporter", "from": "~2.0.5", "to": "~3.0.2" },
+    { "name": "karma-jasmine-html-reporter", "from": "^1.4.0", "to": "^1.5.0" },
+    { "name": "jasmine-core", "from": "~3.3.0", "to": "~3.5.0" },
+    { "name": "jasmine-spec-reporter", "from": "~4.2.1", "to": "~5.0.0" },
+    { "name": "protractor", "from": "~5.4.0", "to": "~7.0.0" },
+    { "name": "tslint", "from": "~5.9.1", "to": "~6.1.0" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails exactly as at baseline: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so webpack cannot resolve the stylesheet and karma never runs a spec. Left untouched to keep this hop to the upgrade; worth fixing on its own.",
+    "The v10 migration replaced \"module\": \"commonjs\" with \"target\": \"es2016\" in src/tsconfig.server.json (this is what the official migration does; the server builder supplies the module format). `npm run build:ssr` is still not green for the pre-existing 'Cannot find type definition file for minimatch' reason, so the SSR build should be checked by hand once that is fixed.",
+    "@nguniversal/module-map-ngfactory-loader is still pinned at 7.1.0 with an unsatisfied peer on @angular/platform-server ^7.1.4 and is a no-op under Ivy. Dropping ModuleMapLoaderModule from app.server.module.ts is still pending from the previous hop and will likely become mandatory in a later hop.",
+    "The build warns that src/main.ts depends on @angular/platform-server as a CommonJS dependency (new in v10). Harmless, but it can be silenced with allowedCommonJsDependencies in angular.json.",
+    "A runtime smoke test of the CRUD screens is worth doing, since the build only proves compilation."
+  ]
+}
