@@ -1,0 +1,12 @@
+Hop 11 (Angular 18 → 19) is done.
+
+**What changed**
+- `ng update @angular/core@19 @angular/cli@19` → all `@angular/*` at 19.2.25, CLI/build-angular 19.2.27, zone.js 0.15.1, TypeScript 5.8.3.
+- `@ngrx/*` 18.1.1 → 19.2.1 (needed for the peer range; ngrx ships no v19 migrations).
+- Core migration added `standalone: false` to all seven NgModule-declared components — v19 flips the `standalone` default to true. I reindented those decorators back to the file's 2-space style.
+- One hand fix: `BrowserModule.withServerTransition({appId: 'ng-cli-universal'})` was removed in v19. Replaced with plain `BrowserModule` + `{ provide: APP_ID, useValue: 'ng-cli-universal' }`, which was the root cause of ~15 cascading template errors.
+- Declined both optional migrations (`use-application-builder`, `provide-initializer`) — out of scope / no-op. rxjs stays at 6.6.7; Angular 19's peer range still accepts it.
+
+**Checks** (clean `node_modules`, Node 20): install pass, `npm run build` pass, `npm run build:ssr` pass. `npm run test` still fails identically to baseline — angular.json's test target references `styles.css` instead of `src/styles.css`, a pre-existing misconfiguration I left alone.
+
+Report written to `.upgrade/reports/11-v18-to-v19.json`. Flagged for the next hop: Angular 20 removes the webpack `browser` builder, so the deferred `use-application-builder` migration (plus the apparently-dead aspnet-prerendering SSR target) becomes blocking there.
