@@ -1,0 +1,10 @@
+Hop 10 is done.
+
+**What happened:**
+- `ng update @angular/core@18 @angular/cli@18` → all `@angular/*` at 18.2.14, CLI/devkit 18.2.21. Its core migration swapped `HttpClientModule` for `provideHttpClient(withInterceptorsFromDi())`; I restored the decorator's original formatting that the migration mangled.
+- `@ngrx/*` 17.2.0 → 18.1.1 was required (ngrx 17 pins `@angular/core: ^17.0.0`, so a clean install wouldn't resolve). Its `TypedAction` → `Action` migration left two conflicting `Action` imports in `employee.reducer.ts` — fixed by hand. It also added an unused `@ngrx/operators`, which I removed.
+- rxjs 6.6.7, TypeScript 5.4.5, zone.js 0.14.10 all still inside Angular 18.2's peer ranges, so untouched. Declined the optional esbuild `application`-builder migration as out of scope.
+
+**Checks** (clean `node_modules`): install pass, `npm run build` pass, `npm run build:ssr` pass, `npm run test` fails identically to baseline (angular.json test target references `styles.css` instead of `src/styles.css` — pre-existing, noted as a followup).
+
+Report written to `.upgrade/reports/10-v17-to-v18.json`. Flagged for the next hop: rxjs 7 becomes mandatory at Angular 19, and `BrowserModule.withServerTransition` is now deprecated.
