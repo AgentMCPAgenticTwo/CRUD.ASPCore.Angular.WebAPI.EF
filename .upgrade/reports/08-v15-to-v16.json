@@ -1,0 +1,50 @@
+{
+  "hop": "08-v15-to-v16",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 15.2 to Angular 16.2 with `ng update @angular/core@16 @angular/cli@16`, which also moved zone.js to 0.13 and applied the CLI's server-builder `buildOptimizer` migration; @ngrx/* followed to 16.3.0. The only hand fix needed was src/main.server.ts, which still re-exported `renderModuleFactory` (removed in v16) and now exports AppServerModule instead, since the v16 server builder injects the render entry points itself. Install, build and the SSR build pass from a clean node_modules; tests still fail exactly as at baseline for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@16 @angular/cli@16 bumped all @angular/* packages to 16.2.12 and @angular/cli / @angular-devkit/build-angular to 16.2.16.",
+    "zone.js moved from ~0.11.4 to ~0.13.3, the range @angular/core 16 requires as a peer (`~0.13.0`).",
+    "TypeScript stays at ~4.9.5: Angular 16 accepts >=4.9.3 <5.2, so no change was needed. rxjs also stays at ^6.6.7, still inside the v16 peer range `^6.5.3 || ^7.4.0`; the move to rxjs 7 is deferred to the hop that actually requires it.",
+    "CLI v16 migration added `buildOptimizer: false` to the server target's base options and `buildOptimizer: true` to its dev and production configurations in angular.json, preserving the previous behaviour now that the flag no longer follows `optimization`.",
+    "src/main.server.ts: `renderModuleFactory` was removed from @angular/platform-server in v16, so the previous one-line re-export broke `npm run build:ssr`. Re-exporting `renderModule` instead also fails, because the v16 server builder's platform-server-exports-loader injects `renderApplication`, `renderModule` and `ɵSERVER_CONTEXT` itself (duplicate-export parse error). The file is now the v16-standard `export { AppServerModule } from './app/app.server.module';`, which keeps the same exported render surface on the bundle and matches the `entryModule` already declared in src/tsconfig.server.json.",
+    "Core v16 migrations for deprecated guard/resolver interfaces and for `@Component.moduleId` found nothing to change; the CLI `defaultProject` and `defaultCollection` migrations likewise found nothing.",
+    "Ran ng update @ngrx/store@16, moving all five @ngrx/* packages from 15.4.0 to 16.3.0 so their `@angular/core: ^16.0.0` peer matches; the 'road to v16' migration found nothing to change.",
+    "Restored the trailing newline on package.json that the ng update rewrite dropped.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a plain `npm install` (no --legacy-peer-deps needed), then `npm run build` and `npm run build:ssr`."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/common", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/compiler", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/core", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/forms", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/platform-browser", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/platform-browser-dynamic", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/platform-server", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/router", "from": "15.2.10", "to": "16.2.12" },
+    { "name": "@angular/cli", "from": "^15.2.11", "to": "^16.2.16" },
+    { "name": "@angular/compiler-cli", "from": "^15.2.10", "to": "^16.2.12" },
+    { "name": "@angular/language-service", "from": "^15.2.10", "to": "^16.2.12" },
+    { "name": "@angular-devkit/build-angular", "from": "^15.2.11", "to": "^16.2.16" },
+    { "name": "zone.js", "from": "~0.11.4", "to": "~0.13.3" },
+    { "name": "@ngrx/effects", "from": "^15.4.0", "to": "^16.3.0" },
+    { "name": "@ngrx/entity", "from": "^15.4.0", "to": "^16.3.0" },
+    { "name": "@ngrx/router-store", "from": "^15.4.0", "to": "^16.3.0" },
+    { "name": "@ngrx/store", "from": "^15.4.0", "to": "^16.3.0" },
+    { "name": "@ngrx/store-devtools", "from": "^15.4.0", "to": "^16.3.0" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails exactly as at baseline: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so webpack reports a load error and karma aborts before any spec runs. Left untouched to keep this hop to the upgrade; it keeps hiding real test breakage in every later hop and is worth fixing on its own.",
+    "The SSR entry still looks like dead code: Startup.cs uses UseSpa/UseAngularCliServer and never UseSpaPrerendering, and aspnet-prerendering is a 2018-era package. main.server.ts now only exports AppServerModule, so if anything ever did consume the old `renderModuleFactory` export it must switch to `renderModule`/`renderApplication` (both injected into the server bundle by the v16 builder). Consider removing the server target and aspnet-prerendering entirely.",
+    "rxjs is still 6.6.7. Angular 16 accepts it, but Angular 17 does not - the move to rxjs 7 must happen in the next hop.",
+    "Angular 16 is the first version where the CLI can use the esbuild browser builder and where standalone/signals APIs exist; nothing was adopted here on purpose (behaviour-preserving upgrade only).",
+    "add-employee.component.ts still uses the Untyped* form classes from the v14 opt-out; adopting typed reactive forms is still open.",
+    "`useDefineForClassFields: false` is still set in tsconfig.json from the v15 migration; a person should decide whether the app can move to the standard `true` behaviour.",
+    "`npm run lint` is still broken from the v13 hop: the tslint architect targets were deleted and nothing replaced them. The project should move to @angular-eslint and drop tslint/codelyzer from optionalDependencies.",
+    "angular.json still carries `defaultConfiguration: \"\"` on the build and server targets from the v12 migration.",
+    "node-sass 4.x still fails to build its native binding on modern Node and is skipped as an optional dependency; it is unused by the build but should be dropped or replaced with `sass`.",
+    "core-js is still pinned at ^2.6.5 and @types/node at ^12, both far behind the Node 18 toolchain this hop runs on.",
+    "`npm install` reports 95 vulnerabilities, almost all from the stale optionalDependencies (protractor, tslint, node-sass, ts-node 5) rather than from Angular itself."
+  ]
+}

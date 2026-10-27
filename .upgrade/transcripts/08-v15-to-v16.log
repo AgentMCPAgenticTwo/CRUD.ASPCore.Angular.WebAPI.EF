@@ -1,0 +1,11 @@
+Hop 8 done: Angular 15.2 → 16.2.
+
+**What changed**
+- `ng update @angular/core@16 @angular/cli@16` → all `@angular/*` at 16.2.12, CLI/devkit at 16.2.16, zone.js `~0.11.4` → `~0.13.3`. TypeScript (4.9.5) and rxjs (6.6.7) are both still inside Angular 16's peer ranges, so they were left alone.
+- CLI migration added the explicit `buildOptimizer` flags to the server target in `angular.json`.
+- `@ngrx/*` 15.4.0 → 16.3.0 (their peer is `@angular/core: ^16.0.0`), even though the hop file listed none — install would otherwise have been on a broken peer.
+- One hand fix: `src/main.server.ts` re-exported `renderModuleFactory`, removed in v16. Swapping to `renderModule` also fails because the v16 server builder injects that export itself (duplicate-export parse error), so the file is now the standard `export { AppServerModule } ...`.
+
+**Checks** (clean `node_modules`, Node 18): install pass, `npm run build` pass, `npm run build:ssr` pass. `npm run test` still fails with the baseline failure — `angular.json`'s test target references `styles.css` instead of `src/styles.css`, so karma aborts on a load error before any spec runs. That matches baseline (`"test": "fail"`) and is unchanged; I left it alone per the rule about pre-existing failures, but flagged it as the top follow-up since it masks real test breakage in later hops.
+
+Report written to `.upgrade/reports/08-v15-to-v16.json`. No commit made, as instructed.
