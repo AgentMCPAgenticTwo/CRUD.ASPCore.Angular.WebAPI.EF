@@ -1,0 +1,8 @@
+Hop 3 done: Angular 10.2 → 11.2.14.
+
+- `ng update @angular/core@11 @angular/cli@11` applied the v11 migrations: `relativeLinkResolution: 'legacy'` added to `RouterModule.forRoot`, `async` → `waitForAsync` in three specs, `extractCss` removed from `angular.json`, karma/jasmine/codelyzer dev deps refreshed.
+- `@ngrx/*` bumped 10.1.2 → 11.1.1 to match.
+- Clean `npm install` + `npm run build`: **pass**.
+- `npm run test`: **fail**, identical to baseline (`ENOENT ... ClientApp/styles.css` — angular.json's test target misreferences the stylesheet; pre-existing, untouched).
+
+Report written to `.upgrade/reports/03-v10-to-v11.json`. No commit made, per the rules.

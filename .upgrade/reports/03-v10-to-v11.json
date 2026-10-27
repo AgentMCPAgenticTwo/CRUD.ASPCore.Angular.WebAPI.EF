@@ -1,0 +1,45 @@
+{
+  "hop": "03-v10-to-v11",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 10.2 to Angular 11.2 with `ng update @angular/core@11 @angular/cli@11`, which ran the v11 core migrations (relativeLinkResolution, `async` to `waitForAsync` in the specs) and the CLI v11 workspace migrations (removed the dropped `extractCss` options from angular.json, refreshed the test/lint dev dependencies). @ngrx/* was moved to 11.1.1 so NgRx matches Angular 11. install and build pass from a clean node_modules; tests still fail exactly as at baseline, for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@11 @angular/cli@11 bumped all @angular/* packages to 11.2.14 and @angular-devkit/build-angular to 0.1102.19.",
+    "Core v11 migration added the explicit `{ relativeLinkResolution: 'legacy' }` option to RouterModule.forRoot in src/app/app.module.ts, preserving the v10 routing behaviour now that the default changed to 'corrected'.",
+    "Core v11 migration renamed the deprecated `async` testing helper to `waitForAsync` in add-employee, counter and fetch-employee component specs.",
+    "CLI v11 workspace migration removed the `extractCss` option (removed in v11, now always on) from both build configurations in angular.json.",
+    "Workspace dependency refresh from the v11 migration: karma 6.4, jasmine-core 3.6, @types/jasmine 3.6, codelyzer 6.",
+    "Ran ng update @ngrx/store@11, moving all five @ngrx/* packages from 10.1.2 to 11.1.1; no NgRx code migrations applied.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a clean npm install followed by npm run build."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/common", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/compiler", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/core", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/forms", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/platform-browser", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/platform-browser-dynamic", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/platform-server", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/router", "from": "10.2.5", "to": "11.2.14" },
+    { "name": "@angular/cli", "from": "^10.2.4", "to": "^11.2.19" },
+    { "name": "@angular/compiler-cli", "from": "^10.2.5", "to": "^11.2.14" },
+    { "name": "@angular/language-service", "from": "^10.2.5", "to": "^11.2.14" },
+    { "name": "@angular-devkit/build-angular", "from": "^0.1002.4", "to": "^0.1102.19" },
+    { "name": "@ngrx/effects", "from": "^10.1.2", "to": "^11.1.1" },
+    { "name": "@ngrx/entity", "from": "^10.1.2", "to": "^11.1.1" },
+    { "name": "@ngrx/router-store", "from": "^10.1.2", "to": "^11.1.1" },
+    { "name": "@ngrx/store", "from": "^10.1.2", "to": "^11.1.1" },
+    { "name": "@ngrx/store-devtools", "from": "^10.1.2", "to": "^11.1.1" },
+    { "name": "karma", "from": "~5.0.0", "to": "~6.4.4" },
+    { "name": "jasmine-core", "from": "~3.5.0", "to": "~3.6.0" },
+    { "name": "@types/jasmine", "from": "~3.3.9", "to": "~3.6.0" },
+    { "name": "codelyzer", "from": "^5.1.2", "to": "^6.0.0" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails exactly as at baseline: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so the CLI aborts with ENOENT before karma starts. Left untouched to keep this hop to the upgrade; worth fixing on its own.",
+    "`relativeLinkResolution: 'legacy'` was added by the migration to preserve behaviour. It is removed in Angular 15, so the routerLink resolution should be checked and the option dropped before that hop.",
+    "@nguniversal/module-map-ngfactory-loader is still pinned at 7.1.0 with an unsatisfied peer on @angular/platform-server ^7.1.4 and is a no-op under Ivy. Dropping ModuleMapLoaderModule from app.server.module.ts is still pending from earlier hops and will likely become mandatory soon.",
+    "The build still warns that src/main.ts depends on @angular/platform-server as a CommonJS dependency; harmless, silenceable with allowedCommonJsDependencies.",
+    "A runtime smoke test of the CRUD screens is worth doing, since the build only proves compilation."
+  ]
+}
