@@ -1,0 +1,10 @@
+Hop 9 is done. Angular 16.2 → 17.3 in `EFNgApp/EFNgApp/ClientApp`.
+
+**What happened**
+- `ng update @angular/core@17 @angular/cli@17` bumped all `@angular/*` to 17.3.12, CLI/build-angular to 17.3.17, TypeScript 4.9.5 → 5.4.5, zone.js 0.13.3 → 0.14.10, and migrated `browserTarget` → `buildTarget` in `angular.json`.
+- The build then failed on `@ngrx/effects@16.3` (`TS2313: Type parameter 'OT' has a circular constraint`) — that type definition doesn't compile under TS 5.4. Bumping `@ngrx/*` to 17.2.0 fixed it; its migration added the now-required `connectInZone: true` to `StoreDevtoolsModule.instrument` (`src/app/app.module.ts:41`), which preserves v16 behaviour.
+- No other hand fixes. rxjs stayed at 6.6.7 — Angular 17's peer range still accepts it, so I didn't force that change here (the previous hop's report predicted otherwise).
+
+**Checks** (clean `node_modules`, Node 20): install pass, `npm run build` pass, `npm run build:ssr` pass. `npm run test` still fails identically to baseline — `angular.json`'s test target lists `styles.css` instead of `src/styles.css`, so karma aborts before any spec runs. Left alone per the rules, flagged again as a follow-up.
+
+Report written to `.upgrade/reports/09-v16-to-v17.json`. Nothing outside `ClientApp` was touched; no commits made.
