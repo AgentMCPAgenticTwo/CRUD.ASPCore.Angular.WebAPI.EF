@@ -1,0 +1,6 @@
+Hop 4 is done: **Angular 11.2 → 12.2**.
+
+- `ng update @angular/core@12 @angular/cli@12` applied all v12 CLI + core migrations (angular.json cleanup, zone.js 0.11 import paths, dropped `emitDecoratorMetadata`), bumped TypeScript to 4.3.5, then `ng update @ngrx/store@12` moved NgRx to 12.5.1.
+- Checks from a wiped `node_modules`: `npm install` pass, `npm run build` pass, `npm run test` fails — same pre-existing `styles.css` ENOENT in angular.json's test target as at baseline, not worse.
+
+One thing worth your attention: the migration wrote `defaultConfiguration: ""` into the build/server targets to preserve the old unoptimised default `ng build`. That's behaviour-preserving as intended here, but you'll probably want `"production"` eventually. Report written to `.upgrade/reports/04-v11-to-v12.json`; nothing committed.

@@ -1,0 +1,46 @@
+{
+  "hop": "04-v11-to-v12",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 11.2 to Angular 12.2 with `ng update @angular/core@12 @angular/cli@12`, which ran the v12 CLI workspace migrations (angular.json option cleanup and explicit dev defaults, zone.js 0.11 import paths, dropped emitDecoratorMetadata) and the v12 core migrations. TypeScript moved to 4.3 and @ngrx/* to 12.5.1 to match Angular 12. install and build pass from a clean node_modules; tests still fail exactly as at baseline, for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@12 @angular/cli@12 bumped all @angular/* packages to 12.2.17, @angular/cli and @angular-devkit/build-angular to 12.2.18, and typescript to 4.3.5 (required by Angular 12).",
+    "CLI v12 workspace migration removed the now-default `aot: true` from both build configurations in angular.json.",
+    "CLI v12 workspace migration added `defaultConfiguration: \"\"` plus the explicit development defaults (optimization/sourceMap/vendorChunk/buildOptimizer/extractLicenses/namedChunks) to the browser and server targets, so a bare `ng build` / `ng run EFNgApp:server:dev` keeps producing the same unoptimised output it did in v11 (in v12 an unconfigured build would otherwise switch to production).",
+    "zone.js migration moved the dependency to ~0.11.4 and rewrote the import paths: `zone.js/dist/zone` to `zone.js` in src/polyfills.ts, `zone.js/dist/zone-testing` to `zone.js/testing` in src/test.ts, and the commented-out `zone.js/dist/zone-error` to `zone.js/plugins/zone-error` in src/environments/environment.ts.",
+    "CLI v12 migration removed `emitDecoratorMetadata` from tsconfig.json; Angular no longer needs decorator metadata.",
+    "The remaining v12 core and CLI migrations (nullable ActivatedRouteSnapshot.fragment, XhrFactory move, /deep/ to ::ng-deep, lazy-loading string syntax, ViewEngine i18n options, web worker syntax, --prod in scripts) ran and found nothing to change in this app.",
+    "Ran ng update @ngrx/store@12, moving all five @ngrx/* packages from 11.1.1 to 12.5.1; no NgRx code migrations applied.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a clean npm install followed by npm run build."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/common", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/compiler", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/core", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/forms", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/platform-browser", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/platform-browser-dynamic", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/platform-server", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/router", "from": "11.2.14", "to": "12.2.17" },
+    { "name": "@angular/cli", "from": "^11.2.19", "to": "^12.2.18" },
+    { "name": "@angular/compiler-cli", "from": "^11.2.14", "to": "^12.2.17" },
+    { "name": "@angular/language-service", "from": "^11.2.14", "to": "^12.2.17" },
+    { "name": "@angular-devkit/build-angular", "from": "^0.1102.19", "to": "^12.2.18" },
+    { "name": "@ngrx/effects", "from": "^11.1.1", "to": "^12.5.1" },
+    { "name": "@ngrx/entity", "from": "^11.1.1", "to": "^12.5.1" },
+    { "name": "@ngrx/router-store", "from": "^11.1.1", "to": "^12.5.1" },
+    { "name": "@ngrx/store", "from": "^11.1.1", "to": "^12.5.1" },
+    { "name": "@ngrx/store-devtools", "from": "^11.1.1", "to": "^12.5.1" },
+    { "name": "typescript", "from": "~4.0.8", "to": "~4.3.5" },
+    { "name": "zone.js", "from": "~0.10.2", "to": "~0.11.4" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails exactly as at baseline: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so the CLI aborts with ENOENT before karma starts. Left untouched to keep this hop to the upgrade; worth fixing on its own.",
+    "angular.json now carries `defaultConfiguration: \"\"` on the build and server targets, inserted by the migration to keep `ng build` unoptimised as before. A person should decide whether the default build ought to be production instead and set `defaultConfiguration: \"production\"`, which is the v12+ convention.",
+    "`relativeLinkResolution: 'legacy'` is still set in src/app/app.module.ts from the v11 migration. It is removed in Angular 15, so routerLink resolution should be checked and the option dropped before that hop.",
+    "@nguniversal/module-map-ngfactory-loader is still pinned at 7.1.0 with unsatisfied peers on @angular/{common,core,platform-server} ^7.1.4 and is a no-op under Ivy. Dropping ModuleMapLoaderModule from app.server.module.ts remains pending from earlier hops.",
+    "The build still warns that src/main.ts depends on @angular/platform-server as a CommonJS dependency; harmless, silenceable with allowedCommonJsDependencies.",
+    "node-sass 4.x still fails to compile its native binding on Node 14 and is skipped as an optional dependency; it is unused by the build but should be dropped or replaced with `sass` at some point.",
+    "A runtime smoke test of the CRUD screens is worth doing, since the build only proves compilation."
+  ]
+}
