@@ -1,0 +1,53 @@
+{
+  "hop": "09-v16-to-v17",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 16.2 to Angular 17.3 with `ng update @angular/core@17 @angular/cli@17`, which also moved TypeScript to 5.4.5 and zone.js to 0.14.10 and applied the CLI's `browserTarget` -> `buildTarget` migration in angular.json. @ngrx/* had to follow to 17.2.0: the 16.3 build of @ngrx/effects does not type-check under TypeScript 5.4 (TS2313 circular constraint in effect_creator.d.ts), which broke `npm run build` until the bump. The ngrx v17 migration added `connectInZone: true` to StoreDevtoolsModule.instrument, the new required option. No other hand fixes were needed. Install, build and the SSR build pass from a clean node_modules; tests still fail exactly as at baseline for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@17 @angular/cli@17 bumped all @angular/* packages to 17.3.12 and @angular/cli / @angular-devkit/build-angular to 17.3.17.",
+    "TypeScript moved from ~4.9.5 to 5.4.5, as required by Angular 17 (peer range >=5.2 <5.5). No source change was needed for the compiler bump.",
+    "zone.js moved from ~0.13.3 to 0.14.10, the version Angular 17 requires as a peer (`~0.14.0`).",
+    "CLI v17 migration renamed the deprecated `browserTarget` option to `buildTarget` on the serve target (base + production configuration) and on the extract-i18n target in angular.json.",
+    "Bumped all five @ngrx/* packages from 16.3.0 to 17.2.0 via `ng update @ngrx/store@17`. This was required, not cosmetic: under TypeScript 5.4 the 16.3 `@ngrx/effects` type definitions fail with `error TS2313: Type parameter 'OT' has a circular constraint`, so `npm run build` could not pass on the 16.3 line.",
+    "The @ngrx 'road to v17' migration added `connectInZone: true` to the StoreDevtoolsModule.instrument config in src/app/app.module.ts; v17 made the option required and `true` preserves the previous v16 behaviour. Only the formatting the migration emitted was tidied by hand.",
+    "rxjs stays at ^6.6.7: Angular 17's peer range is still `^6.5.3 || ^7.4.0`, so the move to rxjs 7 is not forced by this hop and was left out of a behaviour-preserving upgrade. (The previous hop's report predicted v17 would require rxjs 7; that turned out not to be the case.)",
+    "The other CLI v17 migrations (@nguniversal -> @angular/ssr, browser-sync dev dependency) and core v17 migrations (control-flow @/} HTML escaping, TransferState import move, CompilerOption.useJit removal, invalid two-way bindings) all found nothing to change.",
+    "Restored the trailing newline on package.json that the ng update rewrite dropped.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a plain `npm install` (no --legacy-peer-deps needed), then `npm run build`, `npm run build:ssr` and the test command."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/common", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/compiler", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/core", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/forms", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/platform-browser", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/platform-browser-dynamic", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/platform-server", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/router", "from": "16.2.12", "to": "17.3.12" },
+    { "name": "@angular/cli", "from": "^16.2.16", "to": "17.3.17" },
+    { "name": "@angular/compiler-cli", "from": "^16.2.12", "to": "17.3.12" },
+    { "name": "@angular/language-service", "from": "^16.2.12", "to": "17.3.12" },
+    { "name": "@angular-devkit/build-angular", "from": "^16.2.16", "to": "17.3.17" },
+    { "name": "typescript", "from": "~4.9.5", "to": "5.4.5" },
+    { "name": "zone.js", "from": "~0.13.3", "to": "0.14.10" },
+    { "name": "@ngrx/effects", "from": "^16.3.0", "to": "17.2.0" },
+    { "name": "@ngrx/entity", "from": "^16.3.0", "to": "17.2.0" },
+    { "name": "@ngrx/router-store", "from": "^16.3.0", "to": "17.2.0" },
+    { "name": "@ngrx/store", "from": "^16.3.0", "to": "17.2.0" },
+    { "name": "@ngrx/store-devtools", "from": "^16.3.0", "to": "17.2.0" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails exactly as at baseline: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so webpack reports a load error and karma aborts before any spec runs. Left untouched to keep this hop to the upgrade; it keeps hiding real test breakage in every later hop and is worth fixing on its own.",
+    "ng update pinned @angular/cli, @angular-devkit/build-angular, @angular/compiler-cli, @angular/language-service, typescript, zone.js and the @ngrx/* packages to exact versions (it dropped the `^`/`~` ranges). Harmless, but a person may want the caret ranges back for consistency.",
+    "rxjs is still 6.6.7. Angular 17 accepts it; Angular 18 drops rxjs 6 from its peer range, so the move to rxjs 7 must happen in the next hop.",
+    "Angular 17 defaults new apps to standalone bootstrapping, the esbuild/`application` builder and the new `@if`/`@for` control flow. None of it was adopted here on purpose (behaviour-preserving upgrade only); the app still uses NgModules and the webpack `browser` builder, which v17 still supports.",
+    "The SSR entry still looks like dead code: Startup.cs uses UseSpa/UseAngularCliServer and never UseSpaPrerendering, and aspnet-prerendering is a 2018-era package. Consider removing the server target and aspnet-prerendering entirely; the `@nguniversal` -> `@angular/ssr` migration had nothing to do here because the project never used @nguniversal.",
+    "add-employee.component.ts still uses the Untyped* form classes from the v14 opt-out; adopting typed reactive forms is still open.",
+    "`useDefineForClassFields: false` is still set in tsconfig.json from the v15 migration; a person should decide whether the app can move to the standard `true` behaviour, which is now more relevant with TypeScript 5.4.",
+    "`npm run lint` is still broken from the v13 hop: the tslint architect targets were deleted and nothing replaced them. The project should move to @angular-eslint and drop tslint/codelyzer from optionalDependencies.",
+    "angular.json still carries `defaultConfiguration: \"\"` on the build and server targets from the v12 migration.",
+    "node-sass 4.x still fails to build its native binding on modern Node and is skipped as an optional dependency; it is unused by the build but should be dropped or replaced with `sass`.",
+    "core-js is still pinned at ^2.6.5 and @types/node at ^12, both far behind the Node 20 toolchain this hop runs on.",
+    "`npm install` reports 94 vulnerabilities, almost all from the stale optionalDependencies (protractor, tslint, node-sass, ts-node 5) rather than from Angular itself."
+  ]
+}

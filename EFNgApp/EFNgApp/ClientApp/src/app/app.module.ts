@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { AppComponent } from './app.component';
@@ -29,8 +29,7 @@ import * as fromEmployee from 'src/app/state/reducers/employee.reducer';
     AddEmployeeComponent
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
-    HttpClientModule,
+    BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     StoreModule.forRoot({
@@ -38,18 +37,22 @@ import * as fromEmployee from 'src/app/state/reducers/employee.reducer';
     }),
     EffectsModule.forRoot([EmployeeEffect]),
     StoreDevtoolsModule.instrument({
-      maxAge: 25
+      maxAge: 25,
+      connectInZone: true
     }),
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'counter', component: CounterComponent },
-      { path: 'fetch-data', component: FetchDataComponent },
-      { path: 'fetch-employee', component: FetchEmployeeComponent },
-      { path: 'register-employee', component: AddEmployeeComponent },
-      { path: 'employee/edit/:id', component: AddEmployeeComponent },
-    ])
+    { path: '', component: HomeComponent, pathMatch: 'full' },
+    { path: 'counter', component: CounterComponent },
+    { path: 'fetch-data', component: FetchDataComponent },
+    { path: 'fetch-employee', component: FetchEmployeeComponent },
+    { path: 'register-employee', component: AddEmployeeComponent },
+    { path: 'employee/edit/:id', component: AddEmployeeComponent },
+])
   ],
-  providers: [],
+  providers: [
+    { provide: APP_ID, useValue: 'ng-cli-universal' },
+    provideHttpClient(withInterceptorsFromDi())
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

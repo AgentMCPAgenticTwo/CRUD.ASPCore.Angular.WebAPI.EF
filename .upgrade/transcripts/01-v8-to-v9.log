@@ -1,0 +1,15 @@
+Hop 1 is done — the app is on Angular 9.1.13.
+
+**What I did**
+- `ng update @angular/core@9 @angular/cli@9` (needed `NG_DISABLE_VERSION_CHECK=1`, since CLI 9 otherwise tries to fetch the latest CLI, which refuses Node 12). All six v9 code migrations ran; none required source edits.
+- The CLI workspace migration had to be invoked explicitly (`--migrate-only --from=8.1.0 --to=9.1.15`) after bumping `@angular-devkit/build-angular` to `~0.901.15` — `ng update` had left the devkit on 0.801.0.
+- Bumped `@ngrx/*` 8.6.1 → 9.2.1 via `ng update`, which is required for Angular 9 (the hop file said "none detected", but NgRx 8 doesn't support it).
+
+**Checks**
+- install: **pass** (verified from a deleted `node_modules`)
+- build: **pass**
+- test: **fail** — same as baseline, and for a pre-existing reason unrelated to the upgrade: `angular.json`'s test target lists `"styles.css"` instead of `"src/styles.css"`, so webpack can't resolve it and karma never reaches a spec. I left it alone to keep the hop to the upgrade.
+
+Two other things are recorded as followups in the report: `build:ssr` fails on a `@types/minimatch` stub pulled in by the unrestricted `typeRoots` in `src/tsconfig.server.json` (also not upgrade-caused), and `@nguniversal/module-map-ngfactory-loader` is still on 7.1.0 and is deprecated from v9 on — worth dropping in a later hop.
+
+Report written to `.upgrade/reports/01-v8-to-v9.json`. No commits made.

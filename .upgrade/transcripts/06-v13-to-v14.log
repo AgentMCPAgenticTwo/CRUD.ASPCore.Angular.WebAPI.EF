@@ -1,0 +1,10 @@
+Hop 6 (Angular 13 → 14) is done.
+
+**What happened:** `ng update @angular/core@14 @angular/cli@14` did essentially all the work. Its migrations removed `defaultProject` from `angular.json`, raised the TS target to `es2020`, and applied the typed-forms opt-out in `add-employee.component.ts` (`FormBuilder`/`FormGroup` → `UntypedFormBuilder`/`UntypedFormGroup`). `@ngrx/*` then followed to 14.3.3 via its own `ng update`. TypeScript stayed at 4.6.4 — in range for v14. No hand-written fixes were needed this hop.
+
+**Checks** (clean `node_modules`, Node 16):
+- install: **pass** (plain `npm install`, no `--legacy-peer-deps`)
+- build: **pass**; `build:ssr` also passes
+- test: **fail** — unchanged from baseline, same pre-existing cause (`angular.json` test target points at `styles.css` instead of `src/styles.css`, so the CLI aborts with ENOENT before karma starts)
+
+Report written to `.upgrade/reports/06-v13-to-v14.json`. The flagged follow-up for the next hop: `relativeLinkResolution: 'legacy'` in `app.module.ts` is removed in Angular 15.

@@ -1,0 +1,12 @@
+Hop 5 done — Angular 12.2 → 13.4.
+
+**Checks** (from `ClientApp`, Node 16): `npm install` pass (clean, no `--legacy-peer-deps`), `npm run build` pass, `npm run test` fail — identical pre-existing ENOENT on `styles.css` in the test target, same as baseline. `npm run build:ssr` also works again.
+
+**What the tooling did:** `ng update @angular/core@13 @angular/cli@13` bumped Angular to 13.4.0 / CLI 13.3.11 / TypeScript 4.6.4, removed the IE polyfill blocks and the tslint lint targets, added `/.angular/cache` to `.gitignore`, rewrote `[routerLink]=""` → `[routerLink]="[]"` in `fetch-employee.component.html`, and opted `src/test.ts` out of the new TestBed teardown. `ng update @ngrx/store@13` moved NgRx to 13.2.0.
+
+**Three things needed by hand:**
+- The browser build broke with `Can't resolve 'url'` — v13 drops automatic Node polyfills and ships platform-server as ESM, so the SSR re-export sitting in `src/main.ts` dragged it into the browser bundle. Moved that export to a new `src/main.server.ts` and pointed the server target at it.
+- `src/tsconfig.server.json` type-checked all of `node_modules/@types` and failed on `@types/ws`/`@types/jasmine`; added `"types": []` to match `tsconfig.app.json`.
+- `npm install` failed with ERESOLVE on `@nguniversal/module-map-ngfactory-loader` (Angular ^7 peers, ViewEngine-only, dead under Ivy) — removed it and its `ModuleMapLoaderModule` import; and on `jasmine-core ~3.6` vs `karma-jasmine-html-reporter`'s `>=3.8` peer — bumped jasmine-core/@types/jasmine to ~3.10.
+
+Report written to `.upgrade/reports/05-v12-to-v13.json`; all edits are inside `ClientApp` and nothing was committed. Note `npm run lint` is now a broken target since v13 deleted the tslint builder — flagged as a follow-up to move to `@angular-eslint`.

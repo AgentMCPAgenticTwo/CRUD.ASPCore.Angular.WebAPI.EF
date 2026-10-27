@@ -1,0 +1,16 @@
+Hop 12 (Angular 19 → 20) is done.
+
+**What changed**
+- `ng update @angular/core@20 @angular/cli@20` → all `@angular/*` at **20.3.34**, CLI/build-angular at **20.3.41**
+- `@ngrx/*` 19.2.1 → **20.1.0** (required; ngrx 19 peers on `@angular/core ^19`)
+- Migrations applied: `moduleResolution: "node"` → `"bundler"`, a root `schematics` block in `angular.json` preserving pre-v20 file naming, and `TestBed.get` → `TestBed.inject` in `employee.service.spec.ts`
+- No hand-written code fixes were needed this hop; restored the `package.json` trailing newline
+
+**Checks** (clean `node_modules`)
+- `npm install`: pass (no `--legacy-peer-deps` needed)
+- `npm run build`: pass; `npm run build:ssr` also pass
+- `npm run test`: fails identically to baseline — `angular.json`'s test target lists `styles.css` instead of `src/styles.css`, so karma aborts before any spec runs. Baseline was `fail`, so not worse.
+
+**Key note for the next hop:** the webpack `browser`/`server` builders still work in v20 but are **removed in Angular 21**, so the deferred `use-application-builder` migration (plus rethinking `build:ssr`/aspnet-prerendering) is the main blocker for hop 13.
+
+Report written to `.upgrade/reports/12-v19-to-v20.json`.

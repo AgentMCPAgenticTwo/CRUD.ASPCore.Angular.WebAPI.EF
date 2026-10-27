@@ -1,0 +1,11 @@
+Hop 13 (Angular 20 → 21) is done; report written to `.upgrade/reports/13-v20-to-v21.json`.
+
+What landed:
+- All `@angular/*` → **21.2.25**, CLI/build-angular → **21.2.28**, typescript → **5.9.3**, `@ngrx/*` → **21.1.1**.
+- Core migrations: `provideZoneChangeDetection()` added to the `bootstrapModule` call (v21 no longer enables zone CD implicitly — keeps current behaviour), and the three `*ngIf`/`*ngFor` templates rewritten to `@if`/`@for`.
+- Applied the `update-typescript-lib` migration by hand (`lib: es2022`) because `ng update`'s migration runner downloads a newer "latest" CLI that can't find the v21 CLI migrations.
+- Kept the webpack `browser`/`server` builders: they're still shipped in build-angular 21, so `use-application-builder` remains optional and out of scope.
+
+Checks from a deleted `node_modules`: `npm install` pass (plain, exit 0), `npm run build` pass, `npm run build:ssr` pass, tests fail with the same pre-existing `styles.css` angular.json error as at baseline — no regression.
+
+One wrinkle worth flagging: `ng update`'s own install step failed and left an unsolvable tree, so the lockfile was regenerated once with `--legacy-peer-deps`; plain installs work against it now. The only remaining peer conflict is `@types/node@^12` vs the Node 22 toolchain — noted as a follow-up along with the standalone/zoneless/application-builder sequence.
