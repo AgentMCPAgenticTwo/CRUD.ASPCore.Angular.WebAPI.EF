@@ -1,0 +1,48 @@
+{
+  "hop": "07-v14-to-v15",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 14.3 to Angular 15.2 with `ng update @angular/core@15 @angular/cli@15`, which pulled TypeScript to 4.9 and ran the v15 CLI and core migrations (platform-server renderModule re-export, Karma require.context removal, ES2022 target with useDefineForClassFields:false, relativeLinkResolution removal). @ngrx/* followed to 15.4.0. Install, build and the SSR build all pass from a clean node_modules; tests still fail exactly as at baseline for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@15 @angular/cli@15 bumped all @angular/* packages to 15.2.10 and @angular/cli / @angular-devkit/build-angular to 15.2.11; TypeScript moved from ~4.6.4 to ~4.9.5, the minimum Angular 15 supports.",
+    "CLI v15 migration removed the `renderModule` re-export from src/main.server.ts, since Angular 15 exports it from @angular/platform-server itself; only `renderModuleFactory` stays.",
+    "CLI v15 migration removed the `require.context('./', true, /\\.spec\\.ts$/)` bootstrap and the `declare const require` from src/test.ts. The v15 Karma builder discovers spec files itself, so this is the supported form.",
+    "CLI v15 migration set tsconfig.json `target` to ES2022 and added `useDefineForClassFields: false` (matching what the CLI now forces internally), and dropped the now-redundant `target: es2016` override from src/tsconfig.server.json.",
+    "Core v15 migration removed `relativeLinkResolution: 'legacy'` from RouterModule.forRoot in src/app/app.module.ts; the option no longer exists in v15 and only `corrected` resolution remains. Dropped the empty options object the migration left behind.",
+    "Core v15 RouterLinkWithHref -> RouterLink migration and the CLI browserslist/angular.json cleanups found nothing to change.",
+    "Ran ng update @ngrx/store@15, moving all five @ngrx/* packages from 14.3.3 to 15.4.0 so their Angular peer range matches v15; the effects/router-store/store 'road to v15' migrations found nothing to change.",
+    "Restored the trailing newline on package.json that the ng update rewrite dropped.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a plain `npm install` (no --legacy-peer-deps needed), then `npm run build` and `npm run build:ssr`."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/common", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/compiler", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/core", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/forms", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/platform-browser", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/platform-browser-dynamic", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/platform-server", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/router", "from": "14.3.0", "to": "15.2.10" },
+    { "name": "@angular/cli", "from": "^14.2.13", "to": "^15.2.11" },
+    { "name": "@angular/compiler-cli", "from": "^14.3.0", "to": "^15.2.10" },
+    { "name": "@angular/language-service", "from": "^14.3.0", "to": "^15.2.10" },
+    { "name": "@angular-devkit/build-angular", "from": "^14.2.13", "to": "^15.2.11" },
+    { "name": "typescript", "from": "~4.6.4", "to": "~4.9.5" },
+    { "name": "@ngrx/effects", "from": "^14.3.3", "to": "^15.4.0" },
+    { "name": "@ngrx/entity", "from": "^14.3.3", "to": "^15.4.0" },
+    { "name": "@ngrx/router-store", "from": "^14.3.3", "to": "^15.4.0" },
+    { "name": "@ngrx/store", "from": "^14.3.3", "to": "^15.4.0" },
+    { "name": "@ngrx/store-devtools", "from": "^14.3.3", "to": "^15.4.0" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails exactly as at baseline: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so webpack reports a load error and karma aborts before any spec runs. Left untouched to keep this hop to the upgrade; worth fixing on its own, and it will keep hiding real test breakage in every later hop.",
+    "src/main.server.ts now exports only `renderModuleFactory`, which is itself deprecated (ViewEngine-era). Combined with the fact that Startup.cs uses UseSpa/UseAngularCliServer and never UseSpaPrerendering, the SSR entry still looks like dead code: consider removing the server target and aspnet-prerendering entirely.",
+    "`useDefineForClassFields: false` was added by the migration to preserve current class-field semantics under ES2022. A person should decide whether the app can move to the standard `true` behaviour.",
+    "Angular 15 removed the legacy `relativeLinkResolution` behaviour; the router now always uses `corrected` resolution. The routes here are all absolute top-level paths with no relative routerLinks in child routes, so no behaviour change is expected, but a runtime click-through of the nav and the employee edit links is worth doing.",
+    "add-employee.component.ts still uses the Untyped* form classes from the v14 opt-out; adopting Angular 15 typed reactive forms is still open.",
+    "`npm run lint` is still broken from the v13 hop: the tslint architect targets were deleted and nothing replaced them. The project should move to @angular-eslint and drop tslint/codelyzer from optionalDependencies.",
+    "angular.json still carries `defaultConfiguration: \"\"` on the build and server targets from the v12 migration.",
+    "node-sass 4.x still fails to build its native binding on modern Node and is skipped as an optional dependency; it is unused by the build but should be dropped or replaced with `sass`.",
+    "core-js is still pinned at ^2.6.5, @types/node at ^12, zone.js at ~0.11.4 and rxjs at ^6.6.7; rxjs 6 in particular is the last version Angular 15 accepts, so the move to rxjs 7 must happen before Angular 16."
+  ]
+}

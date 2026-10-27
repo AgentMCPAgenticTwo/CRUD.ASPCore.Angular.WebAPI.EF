@@ -1,0 +1,9 @@
+Hop 7 done — Angular 14.3 → 15.2.10.
+
+**What ran:** `ng update @angular/core@15 @angular/cli@15`, then `ng update @ngrx/store@15` (all five `@ngrx/*` → 15.4.0). TypeScript moved to ~4.9.5.
+
+**Migrations applied:** `renderModule` re-export dropped from `main.server.ts`; `require.context` spec-loading removed from `test.ts` (v15 Karma builder discovers specs itself); `target: ES2022` + `useDefineForClassFields: false`; `relativeLinkResolution: 'legacy'` removed from `app.module.ts`. Only hand edits: dropped the empty `{}` the router migration left, and restored package.json's trailing newline.
+
+**Checks (clean `node_modules`):** install pass, `npm run build` pass, `npm run build:ssr` pass. `npm run test` fails identically to baseline — `angular.json`'s test target still points at `styles.css` instead of `src/styles.css`, so karma aborts before any spec runs. No regression; flagged as a follow-up again.
+
+Report written to `.upgrade/reports/07-v14-to-v15.json`. Noted for the next hop: rxjs is still ^6.6.7, which Angular 16 won't accept.
