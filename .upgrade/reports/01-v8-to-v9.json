@@ -1,0 +1,44 @@
+{
+  "hop": "01-v8-to-v9",
+  "status": "done",
+  "summary": "Upgraded the ClientApp from Angular 8.1 to Angular 9.1 using `ng update`, which applied the core v9 migrations (static query flag, @Injectable, ModuleWithProviders generic, Renderer2, undecorated classes) and the CLI workspace migration to angular.json and the tsconfig files. @angular-devkit/build-angular was moved to 0.901.x and @ngrx/* to 9.2.1 so the toolchain and the NgRx libraries match Angular 9. install and build pass from a clean node_modules; tests still fail exactly as they did at baseline, for the same pre-existing reason.",
+  "changes": [
+    "ng update @angular/core@9 @angular/cli@9 applied all six Angular v9 code migrations (no source changes were required by them).",
+    "CLI workspace migration added \"aot\": true and an anyComponentStyle budget to angular.json, rewrote src/tsconfig.app.json and src/tsconfig.server.json to the files/include form, and added the renderModule/renderModuleFactory re-export to src/main.ts.",
+    "Bumped @angular-devkit/build-angular to ~0.901.15 to match CLI 9 (ng update left it on 0.801.0).",
+    "Ran ng update for @ngrx/* to 9.2.1, which executed the NgRx \"road to v9\" migrations for effects and router-store.",
+    "package-lock.json regenerated through npm; verified by deleting node_modules and running a clean npm install followed by npm run build."
+  ],
+  "dependencies": [
+    { "name": "@angular/animations", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/common", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/compiler", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/core", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/forms", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/platform-browser", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/platform-browser-dynamic", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/platform-server", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/router", "from": "8.1.0", "to": "9.1.13" },
+    { "name": "@angular/cli", "from": "~8.1.0", "to": "^9.1.15" },
+    { "name": "@angular/compiler-cli", "from": "^8.1.0", "to": "^9.1.13" },
+    { "name": "@angular/language-service", "from": "^8.1.0", "to": "^9.1.13" },
+    { "name": "@angular-devkit/build-angular", "from": "~0.801.0", "to": "~0.901.15" },
+    { "name": "@ngrx/effects", "from": "^8.5.2", "to": "^9.2.1" },
+    { "name": "@ngrx/entity", "from": "^8.5.2", "to": "^9.2.1" },
+    { "name": "@ngrx/router-store", "from": "^8.5.2", "to": "^9.2.1" },
+    { "name": "@ngrx/store", "from": "^8.5.2", "to": "^9.2.1" },
+    { "name": "@ngrx/store-devtools", "from": "^8.5.2", "to": "^9.2.1" },
+    { "name": "typescript", "from": "~3.4.5", "to": "~3.8.3" },
+    { "name": "rxjs", "from": "^6.4.0", "to": "^6.6.7" },
+    { "name": "zone.js", "from": "~0.9.1", "to": "~0.10.2" },
+    { "name": "@types/node", "from": "~11.10.5", "to": "^12.11.1" },
+    { "name": "codelyzer", "from": "^5.0.1", "to": "^5.1.2" },
+    { "name": "tslib", "from": "(absent)", "to": "^1.10.0" }
+  ],
+  "manual_followups": [
+    "`npm run test` still fails, as it did at baseline. The cause is unrelated to the upgrade: angular.json's test target lists \"styles.css\" instead of \"src/styles.css\", so webpack cannot resolve the stylesheet and karma never runs a spec. Left untouched to keep this hop to the upgrade; worth fixing on its own.",
+    "`npm run build:ssr` fails with \"TS2688: Cannot find type definition file for 'minimatch'\". src/tsconfig.server.json inherits typeRoots: [node_modules/@types] with no \"types\" restriction, and the hoisted @types/minimatch@6 is a stub with no .d.ts. Pre-existing shape of the config, not covered by the hop's required checks; adding an explicit \"types\" list to the server tsconfig would resolve it.",
+    "@nguniversal/module-map-ngfactory-loader is still pinned at 7.1.0 and has an unsatisfied peer on @angular/platform-server ^7.1.4. It is deprecated from Angular 9 onward (Ivy makes it unnecessary); plan to drop ModuleMapLoaderModule from app.server.module.ts in a later hop.",
+    "Ivy is now the default compiler for this app. A runtime smoke test of the CRUD screens is worth doing, since the build only proves compilation."
+  ]
+}
