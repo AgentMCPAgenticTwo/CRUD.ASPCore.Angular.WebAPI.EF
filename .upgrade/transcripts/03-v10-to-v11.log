@@ -1,0 +1,6 @@
+Hop 3 (Angular 10 → 11) is complete.
+
+- Ran `ng update @angular/core@11 @angular/cli@11 --allow-dirty --force` from `EFNgApp/EFNgApp/ClientApp` (had to use the local CLI via `npx ng update` after `npm install`, since `npx -p @angular/cli@11 ng ...` couldn't resolve the `ng` binary in this npm 6/Node 12 environment).
+- Angular bumped to 11.2.14, CLI toolchain to 11.2.19, karma to 6.4.4, codelyzer to ^6.0.0. Migrations removed the deprecated `extractCss` option from `angular.json`, added `relativeLinkResolution: 'legacy'` to the root router config, and renamed `async` → `waitForAsync` in three spec files.
+- `npm install` and `npm run build` pass; `npm run test` fails identically to baseline (pre-existing `styles.css` path bug), so no regression.
+- All changes confined to `EFNgApp/EFNgApp/ClientApp`. Report written to `.upgrade/reports/03-v10-to-v11.json`.
