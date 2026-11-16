@@ -7,9 +7,10 @@ import { FetchEmployee, DeleteEmployee } from 'src/app/state/actions/employee.ac
 import { getEmployees } from 'src/app/state/reducers/employee.reducer';
 
 @Component({
-  selector: 'app-fetch-employee',
-  templateUrl: './fetch-employee.component.html',
-  styleUrls: ['./fetch-employee.component.css']
+    selector: 'app-fetch-employee',
+    templateUrl: './fetch-employee.component.html',
+    styleUrls: ['./fetch-employee.component.css'],
+    standalone: false
 })
 export class FetchEmployeeComponent implements OnInit {
 

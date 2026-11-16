@@ -1,0 +1,7 @@
+Hop 13 (Angular 20 → 21) is complete — the final hop in the 8-to-21 chain. Summary:
+
+- Ran `ng update @angular/core@21 @angular/cli@21` which bumped Angular packages to 21.2.26, the CLI toolchain to 21.2.30, and TypeScript to ~5.9.3.
+- Mandatory migrations: dropped the now-redundant `lib` entry in tsconfig.json, migrated `main.ts` to `provideZoneChangeDetection()`, and converted the remaining `*ngIf`/`*ngFor` templates to `@if`/`@for` block syntax.
+- The hop file said no related packages needed a bump, but that was wrong — @ngrx/* was still peer-pinned to Angular 20, so I bumped all five @ngrx packages to ^21.1.1 to match.
+- `npm install` and `npm run build` both pass; `npm run test` fails the same pre-existing way as baseline (unrelated `styles.css` path misconfiguration), so no regression.
+- Report written to `.upgrade/reports/13-v20-to-v21.json` with status `done`.

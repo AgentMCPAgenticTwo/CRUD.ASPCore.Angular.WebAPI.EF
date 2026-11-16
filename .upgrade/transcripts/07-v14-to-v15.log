@@ -1,0 +1,7 @@
+Hop 7 (Angular 14 → 15) is complete. Summary:
+
+- Ran `ng update @angular/core@15 @angular/cli@15` on Node 18, which bumped Angular packages to 15.2.10, CLI toolchain to 15.2.11, and TypeScript to ~4.9.5.
+- Automated migrations removed the deprecated `relativeLinkResolution: 'legacy'` router option, dropped the CLI-owned `renderModule` re-export from `main.server.ts`, cleaned up obsolete spec-loading boilerplate in `test.ts`, and updated tsconfig target settings.
+- `npm install` and `npm run build` both pass; `npm run test` fails the same pre-existing way as baseline (unrelated `styles.css` path issue in `angular.json`), so no regression.
+- No related third-party packages needed a bump per the hop file.
+- Report written to `.upgrade/reports/07-v14-to-v15.json`.

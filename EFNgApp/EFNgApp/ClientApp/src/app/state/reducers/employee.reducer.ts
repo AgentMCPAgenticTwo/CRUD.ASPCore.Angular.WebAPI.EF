@@ -1,7 +1,6 @@
 import { Employee } from "src/models/employee";
 import * as EmployeeActions from 'src/app/state/actions/employee.actions';
-import { createSelector, createReducer, on } from "@ngrx/store";
-import { Action } from "@ngrx/store/src/models";
+import { Action, createSelector, createReducer, on } from "@ngrx/store";
 import { AppState } from "../app.state";
 
 export interface EmployeeState {

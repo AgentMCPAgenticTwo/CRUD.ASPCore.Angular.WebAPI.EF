@@ -1,0 +1,6 @@
+Hop 9 (Angular 16 → 17) is complete. Summary:
+
+- Ran `ng update @angular/core@17 @angular/cli@17` — bumped Angular to 17.3.12, CLI toolchain to 17.3.17, zone.js to 0.14.10, TypeScript to 5.4.5.
+- Build broke due to `@ngrx/*` 16.3.0 being incompatible with TS 5.4 (circular type constraint); fixed by updating all `@ngrx/*` packages to 17.2.0 via `ng update`, which also auto-added `connectInZone: true` to `StoreDevtoolsModule.instrument()`.
+- `install` and `build` both pass; `test` fails the same pre-existing way as baseline (unrelated `styles.css` path misconfiguration), so no regression.
+- Report written to `.upgrade/reports/09-v16-to-v17.json` with status `done`.

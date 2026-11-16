@@ -1,0 +1,7 @@
+Hop 8 (Angular 15 → 16) is complete. Summary:
+
+- Ran the official `ng update` for `@angular/core@16` and `@angular/cli@16` (bumped Angular to 16.2.12, CLI toolchain to 16.2.16, zone.js to 0.13.3).
+- The build then failed with `NG6002` because `@ngrx/*` packages were still on the pre-Ivy v8.5.2 line (flagged as a risk by the previous hop) — updated all five `@ngrx/*` packages to 16.3.0 via `ng update`, which required no source changes.
+- Fixed `src/main.server.ts`: Angular 16 removed `renderModuleFactory`, and the CLI's server builder now auto-injects the replacement exports itself, so the manual re-export was removed to avoid a duplicate-export conflict.
+- `npm install` and `npm run build` pass; `npm run test` fails the same pre-existing way as baseline (unrelated `styles.css` path bug in `angular.json`), so no regression.
+- Report written to `.upgrade/reports/08-v15-to-v16.json` with status `"done"`.

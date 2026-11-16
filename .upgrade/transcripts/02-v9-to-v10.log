@@ -1,0 +1,6 @@
+All changes are confined to `EFNgApp/EFNgApp/ClientApp` plus the report file, as required. Hop 2 (Angular 9→10) is complete:
+
+- Ran `ng update @angular/core@10 @angular/cli@10` with `NG_DISABLE_VERSION_CHECK=1` (needed to stop the CLI from trying to self-bootstrap npm's true "latest" `@angular/cli`, which now requires Node 22+ and can't run on this hop's Node 12).
+- Angular bumped to 10.2.5, CLI toolchain to 10.2.4, TypeScript to 4.0.8, tslib to 2.x; migrations renamed `browserslist` → `.browserslistrc`, updated tslint/tsconfig, and found no source code needing changes.
+- `npm install` and `npm run build` pass; `npm run test` fails identically to baseline (pre-existing `styles.css` path bug), so no regression.
+- Report written to `.upgrade/reports/02-v9-to-v10.json`.

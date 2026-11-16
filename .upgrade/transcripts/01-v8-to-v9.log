@@ -1,0 +1,7 @@
+Hop 1 (Angular 8 → 9) is complete. Summary:
+
+- Ran `ng update @angular/core@9 @angular/cli@9 --allow-dirty --force` in `EFNgApp/EFNgApp/ClientApp`, bumping Angular to 9.1.13, CLI tooling to 9.1.15, TypeScript to 3.8.3, rxjs/zone.js, and applying Angular's own Ivy/SSR migrations to `angular.json`, `tsconfig.*.json`, and `src/main.ts`.
+- `npm install` and `npm run build` both pass.
+- `npm run test` still fails, but it's the same pre-existing failure as baseline (angular.json's test target points at a nonexistent root `styles.css` instead of `src/styles.css`) — no regression introduced.
+- Noted manual follow-ups: ngrx/nguniversal peer-dependency warnings (not blocking, no bump required per the hop's own detection), the optional `node-sass` native build failure (pre-existing, optional dep), and the broken test `styles.css` path.
+- Report written to `.upgrade/reports/01-v8-to-v9.json`.
