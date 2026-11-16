@@ -1,0 +1,9 @@
+Hop 12 (Angular 19 → 20) is complete.
+
+Summary:
+- Ran `ng update @angular/core@20 @angular/cli@20` — bumped `@angular/*` to 20.3.35 and the CLI/build-angular toolchain to 20.3.43.
+- The migration switched tsconfig's `moduleResolution` to `bundler`, which started enforcing package `exports` maps and broke a deep-path import (`@ngrx/store/src/models`) used both by `@ngrx/effects@17` and by the app's own `employee.reducer.ts`. Fixed by bumping all `@ngrx/*` packages to `^20.1.0` (first line compatible with Angular 20) and importing `Action` from the public `@ngrx/store` entry point.
+- `npm install --legacy-peer-deps` was hoisting an invalid `ajv@6` (pulled in by the optional protractor/request/har-validator chain) where the updated webpack toolchain needed `ajv@^8`, crashing `ng build`. Fixed with a package.json `overrides` pin to `ajv@^8.17.1`.
+- `npm install` and `npm run build` both pass; `npm run test` fails the same pre-existing way as baseline (unrelated `styles.css` path issue in angular.json), so no regression.
+
+Report written to `.upgrade/reports/12-v19-to-v20.json` with status `done`.
