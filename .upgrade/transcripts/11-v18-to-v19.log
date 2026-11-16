@@ -1,0 +1,7 @@
+Hop 11 (Angular 18 → 19) is complete. Summary:
+
+- Ran `ng update @angular/core@19 @angular/cli@19` successfully; Angular packages moved to 19.2.25, CLI/build-angular to 19.2.27, TypeScript to ~5.8.3, zone.js to ~0.15.1.
+- The automated migration added `standalone: false` to all 7 NgModule-declared components (expected, since v19 defaults new components to standalone).
+- Found and manually fixed one build break the codemod didn't handle: `BrowserModule.withServerTransition()` was removed in Angular 19, which broke `app.module.ts`'s compile and cascaded into unrelated-looking template errors across the whole app. Fixed with plain `BrowserModule` + an explicit `APP_ID` provider, preserving the original SSR app-id behavior.
+- `npm install` and `npm run build` both pass. `npm run test` fails the same pre-existing way as baseline (unrelated `styles.css` path bug in `angular.json`) — no regression.
+- Report written to `.upgrade/reports/11-v18-to-v19.json` with status `done`.

@@ -9,9 +9,10 @@ import { Store } from '@ngrx/store';
 import { AddEmployee, EditEmployee } from '../state/actions/employee.actions';
 
 @Component({
-  selector: 'app-add-employee',
-  templateUrl: './add-employee.component.html',
-  styleUrls: ['./add-employee.component.css']
+    selector: 'app-add-employee',
+    templateUrl: './add-employee.component.html',
+    styleUrls: ['./add-employee.component.css'],
+    standalone: false
 })
 export class AddEmployeeComponent implements OnInit {
 

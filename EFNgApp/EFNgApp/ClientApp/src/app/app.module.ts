@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -27,7 +27,7 @@ import * as fromEmployee from 'src/app/state/reducers/employee.reducer';
         FetchEmployeeComponent,
         AddEmployeeComponent
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
+    bootstrap: [AppComponent], imports: [BrowserModule,
         FormsModule,
         ReactiveFormsModule,
         StoreModule.forRoot({
@@ -45,5 +45,5 @@ import * as fromEmployee from 'src/app/state/reducers/employee.reducer';
             { path: 'fetch-employee', component: FetchEmployeeComponent },
             { path: 'register-employee', component: AddEmployeeComponent },
             { path: 'employee/edit/:id', component: AddEmployeeComponent },
-        ], {})], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        ], {})], providers: [provideHttpClient(withInterceptorsFromDi()), { provide: APP_ID, useValue: 'ng-cli-universal' }] })
 export class AppModule { }
