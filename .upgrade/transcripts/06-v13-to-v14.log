@@ -1,0 +1,6 @@
+The Angular 13 → 14 hop is complete. Summary:
+
+- Ran `ng update @angular/core@14 @angular/cli@14` on Node 16/npm 8, bumping all `@angular/*` packages to 14.3.0 and CLI/build-angular to 14.2.13.
+- Angular's own migrations removed the obsolete `defaultProject` from `angular.json`, bumped the TS compile target to ES2020, and converted `add-employee.component.ts`'s `FormBuilder`/`FormGroup` to `UntypedFormBuilder`/`UntypedFormGroup` to preserve pre-v14 untyped Reactive Forms behavior.
+- `npm install` and `npm run build` both pass; `npm run test` fails the same pre-existing way as baseline (bad `styles.css` path in `angular.json`'s test target) — no new regression.
+- Report written to `.upgrade/reports/06-v13-to-v14.json` with status `done`.
