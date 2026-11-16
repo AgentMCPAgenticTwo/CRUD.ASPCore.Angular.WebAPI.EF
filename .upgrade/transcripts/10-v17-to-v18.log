@@ -1,0 +1,1 @@
+Hop 10 (Angular 17 → 18) is complete: `ng update` bumped Angular core/CLI to 18.2.14/18.2.21, migrated `HttpClientModule` to `provideHttpClient()` in `app.module.ts`, install and build both pass, and the pre-existing test/SSR-build failures are unchanged from baseline. Report written to `.upgrade/reports/10-v17-to-v18.json`.
