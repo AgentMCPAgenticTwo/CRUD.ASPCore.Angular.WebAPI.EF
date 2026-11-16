@@ -1,0 +1,8 @@
+Hop 5 (Angular 12 → 13) is complete:
+
+- Ran the official `ng update` to Angular 13.4.0 / CLI 13.3.11, applying its migrations (IE polyfill cleanup, angular.json cleanup, empty `routerLink` fix, TestBed teardown opt-out).
+- Fixed a webpack 5 build break: `src/main.ts` was re-exporting `renderModule`/`renderModuleFactory` from `@angular/platform-server` (added by Angular's own Ivy migration back in hop 1), which pulled Node-only code into the browser bundle. Confirmed SSR isn't actually used (`Startup.cs` has no `UseSpaPrerendering`), so split it into a new `src/main.server.ts` and repointed the `server` architect target — standard Angular Universal structure, no behavior change.
+- Set `legacy-peer-deps=true` (project `.npmrc`) so `npm install` tolerates `@ngrx/*` still being pinned to Angular 8 peers, pending their own major bump in a later hop.
+- `npm install` and `npm run build` pass; `npm run test` fails the same pre-existing way as baseline (unrelated `styles.css` path bug), so no regression.
+
+Report written to `.upgrade/reports/05-v12-to-v13.json` with status `done`.
